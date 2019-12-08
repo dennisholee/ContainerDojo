@@ -1,19 +1,17 @@
-FROM node:10
+FROM node:10-alpine
 
-ADD package.json /tmp/package.json
-RUN cd /tmp && npm install
-RUN mkdir -p /app && cp -a /tmp/node_modules /app/
+RUN mkdir -p /home/node/app/node_modules && chown -R node:node /home/node/app
 
-WORKDIR /app
+WORKDIR /home/node/app
 
-ADD . /app
-
-RUN npm install
-
-EXPOSE 3000
+COPY package*.json ./
 
 USER node
 
-# CMD ["node", "index.js"]
+RUN npm install
 
-# RUN chmod u+x ./wait_for_redis.sh
+COPY --chown=node:node . .
+
+EXPOSE 3000
+
+CMD [ "node", "index.js" ]
