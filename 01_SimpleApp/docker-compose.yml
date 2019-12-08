@@ -5,14 +5,5 @@ services:
     volumes:
     - ./:/app
     ports:
-    - "3000:3000"
-    depends_on:
-    - 'redis'
-    command:
-      sh -c "/app/wait-for-redis.sh redis node index.js"
-  
-  redis:
-    image: redis
-    container_name: cache
-    ports:
-    - 6379
+    - '3000:3000'
+    command: ['node', '/app/index.js']
