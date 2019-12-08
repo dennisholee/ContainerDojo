@@ -10,6 +10,10 @@ ADD . /app
 
 RUN npm install
 
+EXPOSE 3000
 
+USER node
 
-CMD ["node", "index.js"]
+# CMD ["node", "index.js"]
+
+# RUN chmod u+x ./wait_for_redis.sh

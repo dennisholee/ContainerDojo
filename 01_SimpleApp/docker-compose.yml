@@ -1,0 +1,18 @@
+version: '3'
+services:
+  01_simpleapp:
+    build: .
+    volumes:
+    - ./:/app
+    ports:
+    - "3000:3000"
+    depends_on:
+    - 'redis'
+    command:
+      sh -c "/app/wait-for-redis.sh redis node index.js"
+  
+  redis:
+    image: redis
+    container_name: cache
+    ports:
+    - 6379
