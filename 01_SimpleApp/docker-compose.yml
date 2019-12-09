@@ -1,9 +1,31 @@
 version: '3'
 services:
   01_simpleapp:
-    build: .
+    build: app
     volumes:
-    - ./:/app
+    - ./app:/app
     ports:
     - '3000:3000'
+    links:
+    - influxdb
+    networks:
+    - share_ride_network
     command: ['node', '/app/index.js']
+  influxdb:
+    image: influxdb:latest
+    volumes:
+    - ./influxdb:/app
+    ports:
+    - '8088:8088'
+    - '8086:8086'
+    networks:
+    - share_ride_network
+    command: ['influxd', '--config', '/app/influxdb.conf']
+  chronograf:
+    image: chronograf:latest
+    ports:
+    - '8888:8888'
+    networks:
+    - share_ride_network
+networks:
+  share_ride_network:
