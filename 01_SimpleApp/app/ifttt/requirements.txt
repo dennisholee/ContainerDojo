@@ -1,0 +1,13 @@
+Flask==1.1.1
+pandas==0.25.2
+SQLAlchemy==0.7.9
+requests==2.22.0
+mysql-connector-python==8.0.18
+mysql-connector==2.2.9
+Flask-SQLAlchemy==2.4.1
+Flask-WTF==0.14.2
+Flask-Script==2.0.6
+Flask-User==1.0.2.2
+Flask-Login==0.4.1
+beautifulsoup4==4.8.1
+
