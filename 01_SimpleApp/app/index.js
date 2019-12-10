@@ -4,6 +4,7 @@ const socket = require('socket.io')
 const randomLocation = require('random-location')
 const InfluxDB = require('influxdb-nodejs')
 const retry = require('retry')
+const R = require('ramda')
 
 const app = express()
 const server = http.Server(app)
@@ -11,27 +12,51 @@ const io = socket(server)
 
 app.set('view engine', 'ejs')
 
-//======================================================================= routes
-app.get('/map', (req, res) => {
-  res.status(200).render('home')
-})
+//========================================================================== api
+
+const api = express.Router()
 
 // Get passenger coordinates
 // TODO: Differentiate passengers ... by "Group By"?
-app.get('/passengers', async (req, res) => {
-  let data = await queryPassengers()
-  res.status(200).send(data)
+api.get('/passengers', async (req, res) => {
+  let resultset = await queryPassengers()
+  let passengers = resultset.passenger
+
+  if(!R.isEmpty(passengers)) {
+    console.log(`resultset: ${JSON.stringify(passengers)}`)
+    res.status(200).send(passengers)
+  } else {
+    res.status(200).send({})
+  }
+})
+
+app.use('/api', api)
+
+//======================================================================= routes
+
+app.get('/map', (req, res) => {
+  res.status(200).render('home')
 })
 
 //==================================================================== socket io
 
 io.on('connection', function (socket) {
-  socket.emit('news', { hello: 'world' });
+  socket.emit('news', { hello: 'world' })
+  socket.on('origin', writeCoords )
   socket.on('coords', function (data) {
-//    console.log(data);
-//    console.log(randomHK())
-    writeCoords(data)
-    socket.emit('passenger', randomHK())
+    console.log(JSON.stringify(data));
+    queryPassengers()
+      .then(resultset => {	
+	console.log(`socket.on => resultset: ${JSON.stringify(resultset)}`)
+	if(!R.isEmpty(resultset.passenger)) {
+          // let record = data.results[0].series[0].values[0]
+          // socket.emit('passenger', {latitude: record[1], longitude: record[2]})
+	  socket.emit('passenger', resultset.passenger)
+        }
+      })
+      .catch(console.log)
+
+    // socket.emit('passenger', randomHK())
   });
 });
 
@@ -82,7 +107,6 @@ const connect2db = () => {
 	 console.log(e)
 	 operation.retry(e)
       })
-    
   })
 }
 
@@ -90,34 +114,20 @@ connect2db((err) => {
   console.log(`connect2db error: ${JSON.stringify(err)}`)
 })
 
-//operation.attempt(currentAttempt => {
-//  influx.showDatabases()
-//    .then(names => {
-//      console.log('names' + JSON.stringify(names))
-//      if(!names.includes(dbName)) {
-//        return influx.createDatabase(dbName);
-//      } else {
-//	operation.retry()
-//      }
-//    })
-//    .catch(err => {
-//      operation.retry()
-//    })
-//})
 
 // TODO: Define schema for driver and passengers
 influx.schema('host', {lng: 'float', lat: 'float'})
 
 // TODO: Queue coords write to InfluxDB
 const writeCoords = (data) => {
-  console.log(`data: ${JSON.stringify(data)}`)
+  console.log(`write data: ${JSON.stringify(data)}`)
 
   // map inbound data to schema
   let geolocation = { lng: data.my.lng, lat: data.my.lat }  
 
   influx.write('host')
     .set('measurement', 'passenger')
-    .tag('foo')
+    .tag({name:data.my.usr})
     .field(geolocation)
 //    .queue()
     .then(() => console.log('log success'))
@@ -126,7 +136,8 @@ const writeCoords = (data) => {
 
 const queryPassengers = () =>
   influx.query('passenger')
-    .where('time > now() -5m')
+    .set({format:'json'})
+    .where('time > now() -1h')
     .then((data) => {
       // console.log(JSON.stringify(data)); 
       return data

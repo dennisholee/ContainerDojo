@@ -9,87 +9,113 @@
   <body>
     <div class="container">
       <h1>Share Ride</h1>
-      <div id="map-canvas" style="width:600px;height:400px"></div>
+      <div id="map-canvas" style="width:1024px;height:768px"></div>
     </div>
 
     <script src="/socket.io/socket.io.js"></script>
     <script>
       var socket = io('http://localhost:3000');
-//      socket.on('news', function (data) {
-//        console.log(data);
-//        socket.emit('my other event', { my: 'data' });
-//      });
-//      socket.on('coords', function(data) {
-//        console.log('coords: ' + JSON.stringify(data))
-//      })
-    window.lat = 22.3964;
-    window.lng = 114.1095;
+      window.lat = 22.3964;
+      window.lng = 114.1095;
+  
+      var urlParams = new URLSearchParams(window.location.search);
+      var usr = urlParams.get('name') || 'anon';
+  
+      var map;
+      var trafficLayer;
+      var directionsService;
+      var directionRenderer;
 
-    var map;
-    var mark;
-    var lineCoords = [];
-      
-    var initialize = function() {
-      map  = new google.maps.Map(document.getElementById('map-canvas'), {center:{lat:lat,lng:lng},zoom:12});
-      mark = new google.maps.Marker({position:{lat:lat, lng:lng}, map:map});
-    };
+      var mark;
+      var lineCoords = [];
+        
+      var initialize = function() {
+        map  = new google.maps.Map(document.getElementById('map-canvas'), {center:{lat:lat,lng:lng},zoom:12});
+        trafficLayer = new google.maps.TrafficLayer();
+        trafficLayer.setMap(map);
+        directionsService = new google.maps.DirectionsService();
+        directionsRenderer = new google.maps.DirectionsRenderer();
+        directionsRenderer.setMap(map)
+        // mark = new google.maps.Marker({position:{lat:lat, lng:lng}, map:map});
+      };
+  
+      window.initialize = initialize;
+  
+      const calculateAndDisplayRoute = function(directionsService, directionsRenderer) {
+        directionsService.route(
+            {
+              origin: {query: document.getElementById('start').value},
+              destination: {query: document.getElementById('end').value},
+              travelMode: 'DRIVING'
+            },
+            function(response, status) {
+              if (status === 'OK') {
+                directionsRenderer.setDirections(response);
+              } else {
+                window.alert('Directions request failed due to ' + status);
+              }
+            });
+      }
+      var redraw = function(payload) {
+        lat = payload.message.lat;
+        lng = payload.message.lng;
+  
+        map.setCenter({lat:lat, lng:lng, alt:0});
+        mark.setPosition({lat:lat, lng:lng, alt:0});
+        
+        lineCoords.push(new google.maps.LatLng(lat, lng));
+  
+        var lineCoordinatesPath = new google.maps.Polyline({
+          path: lineCoords,
+          geodesic: true,
+          strokeColor: '#2E10FF'
+        });
+        
+        lineCoordinatesPath.setMap(map);
+      };
 
-    window.initialize = initialize;
+      var wayPoints = []
+  
+      // Adds a marker to the map.
+      function addMarker(location, map) {
+	wayPoints.push({location: location, stopover: true})
 
-    var redraw = function(payload) {
-      lat = payload.message.lat;
-      lng = payload.message.lng;
+        // Add the marker at the clicked location, and add the next-available label
+        // from the array of alphabetical characters.
+        var marker = new google.maps.Marker({
+          position: location,
+          //label: labels[labelIndex++ % labels.length],
+          map: map
+        });
+      }
+  
+        const sendMyCoords = (eventName) => { 
+          navigator.geolocation.getCurrentPosition(pos => {
+  	  socket.emit(eventName, {my: {lat: pos.coords.latitude, lng: pos.coords.longitude, usr: usr}})
+          })
+        }
+  
+      sendMyCoords('origin')
+  
+      setInterval(function() {
+        sendMyCoords('coords')
+      }, 5000);
 
-      map.setCenter({lat:lat, lng:lng, alt:0});
-      mark.setPosition({lat:lat, lng:lng, alt:0});
-      
-      lineCoords.push(new google.maps.LatLng(lat, lng));
-
-      var lineCoordinatesPath = new google.maps.Polyline({
-        path: lineCoords,
-        geodesic: true,
-        strokeColor: '#2E10FF'
-      });
-      
-      lineCoordinatesPath.setMap(map);
-    };
-
-    // Adds a marker to the map.
-    function addMarker(location, map) {
-      // Add the marker at the clicked location, and add the next-available label
-      // from the array of alphabetical characters.
-      var marker = new google.maps.Marker({
-        position: location,
-        //label: labels[labelIndex++ % labels.length],
-        map: map
-      });
-    }
-
-    var pnChannel = "map3-channel";
-
-//    var pubnub = new PubNub({
-//      publishKey:   'pub-c-ff6bd040-3fe7-4cc6-9347-ca681518b60a',
-//      subscribeKey: 'sub-c-030ed1e4-18c0-11ea-b737-3a3f5ed666ca'
-//    });
-//
-//    pubnub.subscribe({channels: [pnChannel]});
-//    pubnub.addListener({message:redraw});
-
-    setInterval(function() {
-      let coords = {lat:window.lat + 0.001, lng:window.lng + 0.01}
-      //pubnub.publish({channel:pnChannel, message:{lat:window.lat + 0.001, lng:window.lng + 0.01}});
-      //pubnub.publish({channel:pnChannel, message:coords});
-
-      console.log('testing...');
-      socket.emit('coords', { my: coords });
-    }, 1000);
-
-    socket.on('passenger', function(data) {
-      console.log('passenger' + JSON.stringify(data))
-      addMarker( {lat:data.latitude , lng:data.longitude } ,map)
-    })
+      socket.on('passenger', function(data) {
+	wayPoints = []
+        console.log('passenger' + JSON.stringify(data))
+	data.map(i => addMarker({lat: i.lat, lng: i.lng}, map))
+	directionsService.route({
+	  origin: data[0],
+	  destination: data[data.length-1],
+	  waypoints: wayPoints,
+	  travelMode: 'DRIVING',
+	}, (res, status) => {
+	  directionsRenderer.setDirections(res)
+	})
+      })
     </script>
-    <script src="https://maps.googleapis.com/maps/api/js?v=3.exp&key=AIzaSyAj5ZzIaxcXZ7gpxLOSi7yaIZPxYAWT_8c&callback=initialize"></script>
+    <script src="https://maps.googleapis.com/maps/api/js?v=3.exp&key=AIzaSyDsiWvX1_7Rizgsvw2DMaLx0P7Bw0D47dg&callback=initialize"></script>
 
   </body>
 </html>
