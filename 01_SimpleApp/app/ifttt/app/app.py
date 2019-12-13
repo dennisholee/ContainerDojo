@@ -124,9 +124,6 @@ def user_delete(id):
 
     return user_schema.jsonify(user)
 
-# endpoint to delete user
-@app.route("/", methods=["GET"])
-def main_page():
 
 
 if __name__ == '__main__':
