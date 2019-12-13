@@ -51,12 +51,21 @@ users_schema = UserSchema(many=True)
 
 
 # endpoint to create new user
-@app.route("/user", methods=["POST"])
+@app.route("/user", methods=["PUT"])
 def add_user():
     username = request.json['username']
     email = request.json['email']
+    phone = request.json['phone']
+    lag = request.json['lag']
+    lng = request.json['lng']
+    pass1 = request.json['pass1']
+    pass2 = request.json['pass2']
+    pass3 = request.json['pass3']
+    pass4 = request.json['pass4']
+    pass5 = request.json['pass5']
 
-    new_user = User(username, email)
+
+    new_user = User(username, email, phone,lag,lng,pass1,pass2,pass3,pass4,pass5)
 
     db.session.add(new_user)
     db.session.commit()
@@ -80,14 +89,27 @@ def user_detail(id):
 
 
 # endpoint to update user
-@app.route("/user/<id>", methods=["PUT"])
+@app.route("/user/<id>", methods=["POST"])
 def user_update(id):
     user = User.query.get(id)
     username = request.json['username']
     email = request.json['email']
+    lag = request.json['lag']
+    lng = request.json['lng']
+    pass1 = request.json['pass1']
+    pass2 = request.json['pass2']
+    pass3 = request.json['pass3']
+    pass4 = request.json['pass4']
+
 
     user.email = email
     user.username = username
+    user.lag = lag
+    user.lng = lng
+    user.pass1 = pass1
+    user.pass2 = pass2
+    user.pass3 = pass3
+    user.pass4 = pass4
 
     db.session.commit()
     return user_schema.jsonify(user)
