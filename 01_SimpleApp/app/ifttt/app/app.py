@@ -78,7 +78,7 @@ def add_user():
 def get_user():
     all_users = User.query.all()
     result = users_schema.dump(all_users)
-    return jsonify(result.data)
+    return jsonify(result)
 
 
 # endpoint to get user detail by id
@@ -123,6 +123,10 @@ def user_delete(id):
     db.session.commit()
 
     return user_schema.jsonify(user)
+
+# endpoint to delete user
+@app.route("/", methods=["GET"])
+def main_page():
 
 
 if __name__ == '__main__':
