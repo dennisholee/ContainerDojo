@@ -12,17 +12,17 @@ const server = http.Server(app)
 
 //lang & long 
 function getPassengerCoord(phoneNum){
-  http.get('01_simpleapp/api/passengers/'+req.param.phoneNum, (resp) => {
+  http.get('01_simpleapp:3000/api/passengers/'+phoneNum, (resp) => {
     return resp;
   }).on("error", (err) => {
     console.log("Error: " + err.message);
-    throw err
   });
+  
 }
 
 //
 function getDriverInfo(phoneNum){
-  http.get('01_simpleapp/api/driver/'+req.param.phoneNum, (resp) => {
+  http.get('http://34.92.144.247:5000/user/'+phoneNum, (resp) => {
     var out=[];
 
     temp = getPassengerCoord(phoneNum);
@@ -77,7 +77,6 @@ function getDriverInfo(phoneNum){
     return out;
   }).on("error", (err) => {
     console.log("Error: " + err.message);
-    throw err
   });
 }
 
