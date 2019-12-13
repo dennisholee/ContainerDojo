@@ -40,6 +40,26 @@ app.get('/map', (req, res) => {
 
 //==================================================================== socket io
 
+//=========== get lat/lng by phone ====
+
+api.get('/passengers/:phone', async(req, res) => {
+  let resultset = await queryPassengersByPhone(req.params.phone)
+  let passenger = {
+    lat: resultset.passenger[0].lat,
+    lng: resultset.passenger[0].lng
+  }
+
+  if(!R.isEmpty(passenger)) {
+    console.log(`resultset for query passenger: ${JSON.stringify(passenger)}`)
+    res.status(200).send(passenger)
+  } else {
+    console.log('Unable to query passenger by phone number')
+    res.status(200).send({})
+  }
+})
+//=====================================
+
+
 io.on('connection', function (socket) {
   socket.emit('news', { hello: 'world' })
   socket.on('origin', writeCoords )
@@ -127,7 +147,7 @@ const writeCoords = (data) => {
 
   influx.write('host')
     .set('measurement', 'passenger')
-    .tag({name:data.my.usr})
+    .tag({phone:data.my.phone})
     .field(geolocation)
 //    .queue()
     .then(() => console.log('log success'))
@@ -139,9 +159,19 @@ const queryPassengers = () =>
     .set({format:'json'})
     .where('time > now() -1h')
     .then((data) => {
-      // console.log(JSON.stringify(data)); 
+       console.log(JSON.stringify(data)); 
       return data
     })
     .catch(console.error)
+
+const queryPassengersByPhone = (phone) =>
+    influx.query('passenger')
+      .set({format:'json'})
+      .where("phone = '" + phone +"'")
+      .then((data) => {
+         console.log(JSON.stringify(data)); 
+        return data
+      })
+      .catch(console.error)
 
 server.listen(3000, () => {console.log('Listening on 3000')})
