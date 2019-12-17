@@ -1,0 +1,9 @@
+[masters]
+master ansible_host=34.69.245.237 ansible_user=dennislee
+
+[workers]
+worker1 ansible_host=35.188.8.55 ansible_user=dennislee
+worker2 ansible_host=34.70.192.133 ansible_user=dennislee
+
+[all:vars]
+ansible_python_interpreter=/usr/bin/python3
