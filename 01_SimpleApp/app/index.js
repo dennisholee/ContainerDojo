@@ -90,7 +90,7 @@ const randomHK = () => randomLocation.randomCirclePoint(hk, 4000)
 //==================================================================== Influx DB
 
 const dbName = "mydb"
-const dbHost = 'influxdb'
+const dbHost = '10.12.12.201'
 const dbPort = '8086'
 
 // TODO: Define schema for driver and passenger's geolocation
