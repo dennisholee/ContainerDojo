@@ -90,7 +90,7 @@ const randomHK = () => randomLocation.randomCirclePoint(hk, 4000)
 //==================================================================== Influx DB
 
 const dbName = "mydb"
-const dbHost = '10.12.12.201'
+const dbHost = '10.12.0.161'
 const dbPort = '8086'
 const uid = "influxdb-admin"
 const ps = "eqefCYVHxj8GTJun7ggcbkEo2frmemBL"
