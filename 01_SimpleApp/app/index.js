@@ -35,6 +35,7 @@ app.use('/api', api)
 //======================================================================= routes
 
 app.get('/map', (req, res) => {
+  console.log('get map');
   res.status(200).render('home')
 })
 
@@ -61,6 +62,7 @@ api.get('/passengers/:phone', async(req, res) => {
 
 
 io.on('connection', function (socket) {
+  console.log('io on connection');
   socket.emit('news', { hello: 'world' })
   socket.on('origin', writeCoords )
   socket.on('coords', function (data) {
