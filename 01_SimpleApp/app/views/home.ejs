@@ -90,11 +90,14 @@
       }
   
         const sendMyCoords = (eventName) => { 
+	  console.log('get geo location');
           navigator.geolocation.getCurrentPosition(pos => {
+	  console.log('socket emit');
+	  console.log(eventName);
   	  socket.emit(eventName, {my: {lat: pos.coords.latitude, lng: pos.coords.longitude, usr: usr}})
           })
         }
-  
+      console.log('send orgin');
       sendMyCoords('origin')
   
       setInterval(function() {
