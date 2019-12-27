@@ -93,7 +93,7 @@ const dbName = "mydb"
 const dbHost = 'influxdb-1-influxdb-svc'
 const dbPort = '8086'
 const uid = "influxdb-admin"
-const ps = "sCtTY1L5wh7ehieqnUkQKh3WnsxCqqwP"
+const pw = "sCtTY1L5wh7ehieqnUkQKh3WnsxCqqwP"
 
 // TODO: Define schema for driver and passenger's geolocation
 const schema = [{
