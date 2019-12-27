@@ -30,6 +30,7 @@
       var lineCoords = [];
         
       var initialize = function() {
+        console.log('new map');
         map  = new google.maps.Map(document.getElementById('map-canvas'), {center:{lat:lat,lng:lng},zoom:12});
         trafficLayer = new google.maps.TrafficLayer();
         trafficLayer.setMap(map);
@@ -38,7 +39,7 @@
         directionsRenderer.setMap(map)
         // mark = new google.maps.Marker({position:{lat:lat, lng:lng}, map:map});
       };
-  
+      console.log('view init');
       window.initialize = initialize;
   
       const calculateAndDisplayRoute = function(directionsService, directionsRenderer) {
