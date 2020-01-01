@@ -31,8 +31,8 @@ api.get('/passengers', async (req, res) => {
 })
 
 app.use('/api', api)
-app.use(bodyParser.urlencoded({ extended: false }));
-app.use(bodyParser.json({ type: 'application/*+json' }));
+app.use(bodyParser.json())
+app.use(bodyParser.urlencoded({extended: true}))
 
 //======================================================================= routes
 
@@ -63,14 +63,12 @@ api.get('/passengers/:phone', async(req, res) => {
 
 api.post('/coords', function (req, res, next) {
     if (!req.body) {
-    	console.log(req);
     	console.log(req.body);
-   	console.log(req.params);
     	writeCoords(JSON.parse(req.body));
     	console.log('write coords');
    	res.status(200).send("successful");
     } else {
-	console.log("error post");
+	console.log("error post body");
     }
 });
 //=====================================
