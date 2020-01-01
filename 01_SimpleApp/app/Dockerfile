@@ -9,7 +9,7 @@ COPY package*.json ./
 USER node
 
 RUN npm install
-
+RUN npm i --save body-parser
 COPY --chown=node:node . .
 
 EXPOSE 3000
