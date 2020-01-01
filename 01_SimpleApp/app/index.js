@@ -5,8 +5,8 @@ const randomLocation = require('random-location')
 const InfluxDB = require('influxdb-nodejs')
 const retry = require('retry')
 const R = require('ramda')
-const bodyParser = require('body-parser');
 const app = express()
+const bodyParser = require('body-parser');
 const server = http.Server(app)
 const io = socket(server)
 
@@ -30,10 +30,10 @@ api.get('/passengers', async (req, res) => {
   }
 })
 
-app.use('/api', api)
+
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({extended: true}))
-
+app.use('/api', api)
 //======================================================================= routes
 
 app.get('/map', (req, res) => {
