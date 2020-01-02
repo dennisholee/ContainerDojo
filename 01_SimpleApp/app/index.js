@@ -15,13 +15,14 @@ app.set('view engine', 'ejs')
 //========================================================================== api
 
 
-const api = express.Router()
+
 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 app.use(bodyParser.raw());
 // Get passenger coordinates
 // TODO: Differentiate passengers ... by "Group By"?
+const api = express.Router()
 app.use('/api', api)
 api.get('/passengers', async (req, res) => {
   let resultset = await queryPassengers()
