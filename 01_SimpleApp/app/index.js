@@ -8,6 +8,7 @@ const R = require('ramda')
 const app = express()
 const server = http.Server(app)
 const io = socket(server)
+const bodyParser = require('body-parser')
 
 app.set('view engine', 'ejs')
 
@@ -15,7 +16,10 @@ app.set('view engine', 'ejs')
 
 
 const api = express.Router()
-
+app.use('/api', api)
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.json());
+app.use(bodyParser.raw());
 // Get passenger coordinates
 // TODO: Differentiate passengers ... by "Group By"?
 api.get('/passengers', async (req, res) => {
@@ -31,8 +35,10 @@ api.get('/passengers', async (req, res) => {
 })
 
 
-app.use(express.json())
-app.use('/api', api)
+// parse various different custom JSON types as JSON
+//app.use(bodyParser.json({ type: 'application/json' }))
+//app.use(express.json())
+
 //======================================================================= routes
 
 app.get('/map', (req, res) => {
