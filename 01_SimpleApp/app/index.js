@@ -5,7 +5,7 @@ const randomLocation = require('random-location')
 const InfluxDB = require('influxdb-nodejs')
 const retry = require('retry')
 const R = require('ramda')
-
+const app = express()
 const server = http.Server(app)
 const io = socket(server)
 
@@ -13,7 +13,7 @@ app.set('view engine', 'ejs')
 
 //========================================================================== api
 
-const app = express()
+
 const api = express.Router()
 
 // Get passenger coordinates
