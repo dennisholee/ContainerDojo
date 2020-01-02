@@ -16,12 +16,13 @@ app.set('view engine', 'ejs')
 
 
 const api = express.Router()
-app.use('/api', api)
+
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 app.use(bodyParser.raw());
 // Get passenger coordinates
 // TODO: Differentiate passengers ... by "Group By"?
+app.use('/api', api)
 api.get('/passengers', async (req, res) => {
   let resultset = await queryPassengers()
   let passengers = resultset.passenger
@@ -67,14 +68,10 @@ api.get('/passengers/:phone', async(req, res) => {
 })
 
 app.post('/coords', function (req, res) {
-    if (!req.body) {
-    	console.log(req.body);
-    	writeCoords(JSON.parse(req.body));
-    	console.log('write coords');
-   	res.status(200).send("successful");
-    } else {
-	console.log("error post body");
-    }
+    console.log(req.body);
+    writeCoords(JSON.parse(req.body));
+    console.log('write coords');
+    res.status(200).send("successful");
 });
 //=====================================
 
