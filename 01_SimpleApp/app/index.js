@@ -5,8 +5,7 @@ const randomLocation = require('random-location')
 const InfluxDB = require('influxdb-nodejs')
 const retry = require('retry')
 const R = require('ramda')
-const app = express()
-const bodyParser = require('body-parser');
+
 const server = http.Server(app)
 const io = socket(server)
 
@@ -14,6 +13,7 @@ app.set('view engine', 'ejs')
 
 //========================================================================== api
 
+const app = express()
 const api = express.Router()
 
 // Get passenger coordinates
@@ -31,8 +31,7 @@ api.get('/passengers', async (req, res) => {
 })
 
 
-app.use(bodyParser.json())
-app.use(bodyParser.urlencoded({extended: true}))
+app.use(express.json())
 app.use('/api', api)
 //======================================================================= routes
 
@@ -61,7 +60,7 @@ api.get('/passengers/:phone', async(req, res) => {
   }
 })
 
-api.post('/coords', function (req, res, next) {
+app.post('/coords', function (req, res) {
     if (!req.body) {
     	console.log(req.body);
     	writeCoords(JSON.parse(req.body));
