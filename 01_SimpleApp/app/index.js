@@ -68,7 +68,7 @@ api.get('/passengers/:phone', async(req, res) => {
   }
 })
 
-app.post('/coords', function (req, res) {
+api.post('/coords', function (req, res) {
     console.log(req.body);
     writeCoords(req.body);
     console.log('write coords');
