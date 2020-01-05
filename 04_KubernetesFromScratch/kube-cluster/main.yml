@@ -1,0 +1,7 @@
+---
+- import_playbook: docker-dependencies.yml
+- import_playbook: kube-dependencies.yml
+- import_playbook: master.yml
+- import_playbook: worker.yml
+- import_playbook: kubecluster-setup.yml
+- import_playbook: nodejs-dependencies.yml

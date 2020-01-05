@@ -34,6 +34,16 @@ ansible-playbook -i /kube-cluster/hosts /kube-cluster/docker-dependencies.yml
 
 Install kubernetes
 
-```
+```sh
 ansible-playbook -i /kube-cluster/hosts /kube-cluster/kube-dependencies.yml
 ```
+
+# Useful commands
+
+```sh
+kubectl run -i --tty busybox --image=busybox --restart=Never -- sh
+```
+
+# Miscellaneous
+
+* [https://www.digitalocean.com/community/tutorials/how-to-use-ansible-to-install-and-set-up-docker-on-ubuntu-18-04](https://www.digitalocean.com/community/tutorials/how-to-use-ansible-to-install-and-set-up-docker-on-ubuntu-18-04)

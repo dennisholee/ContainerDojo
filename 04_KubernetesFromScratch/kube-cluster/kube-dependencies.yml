@@ -12,6 +12,9 @@
       state: present
       filename: 'kubernetes'
 
+- hosts: masters,workers
+  become: yes
+  tasks:
    - name: install kubelet
      apt:
        name: kubelet
@@ -23,7 +26,7 @@
        name: kubeadm
        state: present
 
-- hosts: master
+- hosts: masters,managements
   become: yes
   tasks:
    - name: install kubectl

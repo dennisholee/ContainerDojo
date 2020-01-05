@@ -4,3 +4,5 @@ services:
     image: dennis:ansible
     volumes:
     - './kube-cluster:/kube-cluster'
+  jenkins:
+    image: jenkins/jenkins

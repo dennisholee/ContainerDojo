@@ -1,5 +1,6 @@
 provider "google" {
   project = "${var.project_id}"
+  version = "3.0.0"
 }
 
 locals {
@@ -15,23 +16,35 @@ locals {
 # Enable project services 
 # -------------------------------------------------------------------------------
 
+# resource "google_project_service" "service" {
+#   for_each = toset([
+#     "serviceusage.googleapis.com", 
+#     "iam.googleapis.com", 
+#     "cloudresourcemanager.googleapis.com"
+#   ])
+# 
+#   service = each.key
+# 
+#   project = "your-project-id"
+#   disable_on_destroy = false
+# }
 
-#resource "google_project_service" "api-serviceusage" {
-#  project = "${var.project_id}"
-#  service = "serviceusage.googleapis.com"
-#
-#}
-#
-#resource "google_project_service" "api-iam" {
-#  project = "${var.project_id}"
-#  service = "iam.googleapis.com"
-#}
-#
-#
-#resource "google_project_service" "api-cloudresourcemanager" {
-#  project = "${var.project_id}"
-#  service = "cloudresourcemanager.googleapis.com"
-#}
+# resource "google_project_service" "api-serviceusage" {
+#   project = "${var.project_id}"
+#   service = "serviceusage.googleapis.com"
+# 
+# }
+# 
+# resource "google_project_service" "api-iam" {
+#   project = "${var.project_id}"
+#   service = "iam.googleapis.com"
+# }
+# 
+# 
+# resource "google_project_service" "api-cloudresourcemanager" {
+#   project = "${var.project_id}"
+#   service = "cloudresourcemanager.googleapis.com"
+# }
 
 
 
@@ -84,6 +97,11 @@ resource "google_compute_address" "external-address-worker-2" {
   region       = "${local.region}"
 }
 
+resource "google_compute_address" "external-address-management" {
+  name         = "${local.app}-external-address-management"
+  region       = "${local.region}"
+}
+
 # -------------------------------------------------------------------------------
 # Firewall
 # -------------------------------------------------------------------------------
@@ -96,7 +114,7 @@ resource "google_compute_firewall" "firewall" {
   
   allow {
     protocol = "tcp"
-    ports    = ["22"]
+    ports    = ["22", "6443", "10250"]
   }
 
   target_tags = ["fw-${local.app}-ssh"]
@@ -202,3 +220,34 @@ resource "google_compute_instance" "worker-2" {
   tags = ["${google_compute_firewall.firewall.name}"] 
 }
 
+resource "google_compute_instance" "management" {
+  name                      = "${local.app}-management"
+  machine_type              = "f1-micro"
+  zone                      = "${local.zone}"
+  count                     = 1
+  
+  metadata = {
+    sshKeys  = "dennislee:${file("${var.public_key}")}"
+  }
+
+  service_account {
+    email   = "${google_service_account.sa.email}"
+    scopes  = ["cloud-platform"]
+  }
+
+  network_interface {
+    subnetwork = "${google_compute_subnetwork.subnet.self_link}"
+    access_config {
+        nat_ip = "${google_compute_address.external-address-management.address}"
+    }
+  }
+
+  boot_disk {
+    initialize_params {
+      image = "debian-cloud/debian-9"
+    }
+  }
+
+
+  tags = ["${google_compute_firewall.firewall.name}"] 
+}

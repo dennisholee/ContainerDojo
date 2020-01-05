@@ -1,16 +1,16 @@
 version: '3'
 services:
-  01_simpleapp:
-    build: app
-    volumes:
-    - ./app:/app
-    ports:
-    - '3000:3000'
-    links:
-    - influxdb
-    networks:
-    - share_ride_network
-    command: ['node', '/app/index.js']
+#  01_simpleapp:
+#    build: app
+#    volumes:
+#    - ./app:/app
+#    ports:
+#    - '3000:3000'
+#    links:
+#    - influxdb
+#    networks:
+#    - share_ride_network
+#    command: ['node', '/app/index.js']
   influxdb:
     image: influxdb:latest
     volumes:
@@ -21,11 +21,28 @@ services:
     networks:
     - share_ride_network
     command: ['influxd', '--config', '/app/influxdb.conf']
+  telegraf:
+    image: telegraf:latest
+    volumes:
+    - ./telegraf:/app
+    networks:
+    - share_ride_network
+      #    command: ['telegraf', '--config', '/app/telegraf.conf']
   chronograf:
     image: chronograf:latest
     ports:
     - '8888:8888'
     networks:
     - share_ride_network
+  grafana:
+    image: grafana/grafana
+    volumes:
+    - ./grafana:/app
+    ports:
+    - '4000:3000'
+    networks:
+    - share_ride_network
+    command:
+    - /app/init.sh
 networks:
   share_ride_network:

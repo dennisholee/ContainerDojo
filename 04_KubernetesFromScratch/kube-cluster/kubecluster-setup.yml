@@ -1,0 +1,63 @@
+- hosts: master
+  become: yes
+  tasks:
+  - name: install pip3
+    apt:
+      name: python3-pip
+      state: present
+  - name: Install OpenShift Module for Python
+    pip:
+      name: openshift
+  - name: Get a list of all namespace objects
+    become: yes
+    become_user: dennislee
+    k8s_info:
+      api_version: v1
+      kind: Namespace
+    register: namespace_list
+  - name: Setup development namespace
+    become: yes
+    become_user: dennislee
+    k8s:
+      name: development
+      api_version: v1
+      kind: Namespace
+      state: present
+#  - name: List directory
+#    command: ls -l 
+#    register: out
+#  - debug: var=out.stdout_lines
+  - name: Add RBAC dev to development namespace 
+    become: yes
+    become_user: dennislee
+    k8s:
+      state: present
+      definition: '{{ lookup("file", "../kube-rbac/role.yml") }}'
+  - name: Bind user to dev in development namespace 
+    become: yes
+    become_user: dennislee
+    k8s:
+      state: present
+      definition: '{{ lookup("file", "../kube-rbac/role-binding.yml") }}'
+
+- hosts: managements
+  become: yes
+  become_user: dennislee
+  tasks:
+  - name: Generate private key
+    openssl_privatekey:
+      path: dennislee_k8_pri.pem
+      size: 4092
+      type: RSA
+  - name: Generate CSR
+    openssl_csr:
+      path: dennislee.csr
+      privatekey_path: dennislee_k8_pri.pem
+      common_name: dennis
+      #authority_key_identifier: keyid,issuer:always
+      basic_constraints: CA:FALSE
+      key_usage: keyEncipherment,dataEncipherment
+      extended_key_usage: serverAuth,clientAuth
+
+
+
