@@ -58,10 +58,11 @@ api.get('/passengers/:phone', async(req, res) => {
     lat: resultset.passenger[0].lat,
     lng: resultset.passenger[0].lng
   }
+  let passengers = resultset.passenger
 
-  if(!R.isEmpty(passenger)) {
-    console.log(`resultset for query passenger: ${JSON.stringify(passenger)}`)
-    res.status(200).send(passenger)
+  if(!R.isEmpty(passengers)) {
+    console.log(`resultset for query passenger: ${JSON.stringify(passengers)}`)
+    res.status(200).send(passengers)
   } else {
     console.log('Unable to query passenger by phone number')
     res.status(200).send({})
