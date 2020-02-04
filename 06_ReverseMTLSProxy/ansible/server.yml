@@ -1,0 +1,24 @@
+---
+  - name: "Generate server side certificate for HTTPS "
+    hosts: localhost
+    connection: local 
+    tasks:
+
+    - name: Generate an OpenSSL private key with the default values (4096 bits, RSA)
+      openssl_privatekey:
+        path: /tmp/ssl/private/server.pem
+    
+    - name: Generate an OpenSSL Certificate Signing Request
+      openssl_csr:
+        path: /tmp/ssl/csr/server.csr
+        privatekey_path: /tmp/ssl/private/server.pem
+        common_name: forest.io
+
+    - name: Generate a Self Signed OpenSSL certificate
+      openssl_certificate:
+        path: /tmp/ssl/crt/server.crt
+        privatekey_path: /tmp/ssl/private/server.pem
+        csr_path: /tmp/ssl/csr/server.csr
+        ownca_path: /tmp/cacert/crt/cacert.crt
+        ownca_privatekey_path: /tmp/cacert/private/ca_privatekey.pem
+        provider: ownca 

@@ -1,0 +1,6 @@
+[mtlsservers]
+mtlsserver
+
+[all:vars]
+ansible_connection=docker
+ansible_python_interpreter=/Users/dennislee/Devs/Docker/ContainerDojo/06_ReverseMTLSProxy/venv/bin/python

@@ -1,0 +1,15 @@
+version: '3'
+services:
+  sslserver:
+    image: nginx:latest
+    volumes:
+    - /tmp/ssl:/ssl
+      #    - /tmp/clientssl:/clientssl 
+    - /tmp/client:/client 
+    - /tmp/cacert:/cacert
+    - ./sslserver/https.conf:/etc/nginx/conf.d/https.conf
+    ports:
+    - '80:80'
+    - '2222:22'
+    - '8443:8443'
+      #    network_mode: "host"

@@ -1,0 +1,25 @@
+---
+  - name: "Generate Certificate Authority (CA) artifacts"
+    hosts: localhost
+    connection: local 
+    tasks:
+
+    - name: Generate a CA private key with the default values (4096 bits, RSA)
+      openssl_privatekey:
+        path: /tmp/cacert/private/ca_privatekey.pem
+
+    - name: Generate a Client OpenSSL Certificate Signing Request with special key usages
+      openssl_csr:
+        path: /tmp/cacert/csr/ca.csr
+        privatekey_path: /tmp/cacert/private/ca_privatekey.pem
+        common_name: forestsolution.io
+        basic_constraints:
+        - 'CA:TRUE'
+        basic_constraints_critical: yes
+
+    - name: Generate a Self Signed Client OpenSSL certificate
+      openssl_certificate:
+        path: /tmp/cacert/crt/cacert.crt
+        privatekey_path: /tmp/cacert/private/ca_privatekey.pem
+        csr_path: /tmp/cacert/csr/ca.csr
+        provider: selfsigned

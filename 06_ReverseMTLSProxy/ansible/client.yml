@@ -1,0 +1,28 @@
+---
+  - name: "Generate client authentication certificate"
+    hosts: localhost
+    connection: local 
+    tasks:
+
+    - name: Generate a Client OpenSSL private key with the default values (4096 bits, RSA)
+      openssl_privatekey:
+        path: /tmp/client/private/client.pem
+
+    - name: Generate a Client OpenSSL Certificate Signing Request with special key usages
+      openssl_csr:
+        path: /tmp/client/csr/www.client.csr
+        privatekey_path: /tmp/client/private/client.pem
+        common_name: localhost
+        key_usage:
+          - digitalSignature
+          - keyAgreement
+        extended_key_usage:
+          - clientAuth
+
+    - name: Generate a Self Signed Client OpenSSL certificate
+      openssl_certificate:
+        path: /tmp/client/crt/client.crt
+        csr_path: /tmp/client/csr/www.client.csr
+        ownca_path: /tmp/cacert/crt/cacert.crt
+        ownca_privatekey_path: /tmp/cacert/private/ca_privatekey.pem    
+        provider: ownca 
