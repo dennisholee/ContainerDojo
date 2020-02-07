@@ -101,6 +101,21 @@ resource "google_compute_address" "external-address-management" {
   name         = "${local.app}-external-address-management"
   region       = "${local.region}"
 }
+ 
+# resource "google_compute_address" "external-address-etcd1" {
+#   name         = "${local.app}-external-address-etcd1"
+#   region       = "${local.region}"
+# }
+# 
+# resource "google_compute_address" "external-address-etcd2" {
+#   name         = "${local.app}-external-address-etcd2"
+#   region       = "${local.region}"
+# }
+# 
+# resource "google_compute_address" "external-address-etcd3" {
+#   name         = "${local.app}-external-address-etcd3"
+#   region       = "${local.region}"
+# }
 
 # -------------------------------------------------------------------------------
 # Firewall
@@ -114,7 +129,12 @@ resource "google_compute_firewall" "firewall" {
   
   allow {
     protocol = "tcp"
-    ports    = ["22", "6443", "10250"]
+    ports    = ["22", "53", "6443", "9153", "10250"]
+  }
+
+  allow {
+    protocol = "udp"
+    ports    = ["53"]
   }
 
   target_tags = ["fw-${local.app}-ssh"]
@@ -239,6 +259,41 @@ resource "google_compute_instance" "management" {
     subnetwork = "${google_compute_subnetwork.subnet.self_link}"
     access_config {
         nat_ip = "${google_compute_address.external-address-management.address}"
+    }
+  }
+
+  boot_disk {
+    initialize_params {
+      image = "debian-cloud/debian-9"
+    }
+  }
+
+
+  tags = ["${google_compute_firewall.firewall.name}"] 
+}
+
+
+resource "google_compute_instance" "etcd" {
+  count                     = 3
+
+  name                      = "${local.app}-etcd${count.index}"
+  machine_type              = "f1-micro"
+  zone                      = "${local.zone}"
+  
+  metadata = {
+    sshKeys  = "dennislee:${file("${var.public_key}")}"
+  }
+
+  service_account {
+    email   = "${google_service_account.sa.email}"
+    scopes  = ["cloud-platform"]
+  }
+
+  network_interface {
+    subnetwork = "${google_compute_subnetwork.subnet.self_link}"
+    access_config {
+       # Assume ephemeral
+       # nat_ip = "${google_compute_address.external-address-management.address}"
     }
   }
 

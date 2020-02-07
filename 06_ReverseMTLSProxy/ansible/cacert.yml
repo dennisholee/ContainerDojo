@@ -3,6 +3,14 @@
     hosts: localhost
     connection: local 
     tasks:
+    - name: Create directories
+      file:
+        path: "{{ item }}"
+        state: directory
+      with_items:
+        - /tmp/cacert/private
+        - /tmp/cacert/csr
+        - /tmp/cacert/crt
 
     - name: Generate a CA private key with the default values (4096 bits, RSA)
       openssl_privatekey:

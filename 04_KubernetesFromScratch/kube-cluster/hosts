@@ -1,13 +1,18 @@
 
 [masters]
-master ansible_host=35.193.50.45 ansible_user=dennislee
+master ansible_host=35.193.197.176 ansible_user=dennislee
 
 [workers]
-worker1 ansible_host=35.188.77.199 ansible_user=dennislee
-worker2 ansible_host=35.202.225.166 ansible_user=dennislee
+worker1 ansible_host=35.238.17.205 ansible_user=dennislee
+worker2 ansible_host=34.66.29.115 ansible_user=dennislee
 
 [managements]
-mngt1 ansible_host=34.66.77.176 ansible_user=dennislee
+mngt1 ansible_host=35.184.130.226 ansible_user=dennislee
+
+[etcd]
+etcd1 ansible_host=35.238.252.94 ansible_user=dennislee
+etcd2 ansible_host=34.70.71.206 ansible_user=dennislee
+etcd3 ansible_host=35.232.193.35 ansible_user=dennislee
 
 [all:vars]
 ansible_python_interpreter=/usr/bin/python3

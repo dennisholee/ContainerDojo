@@ -3,6 +3,14 @@
     hosts: localhost
     connection: local 
     tasks:
+    - name: Create directories
+      file:
+        path: "{{ item }}"
+        state: directory
+      with_items:
+        - /tmp/ssl/private
+        - /tmp/ssl/csr
+        - /tmp/ssl/crt
 
     - name: Generate an OpenSSL private key with the default values (4096 bits, RSA)
       openssl_privatekey:
