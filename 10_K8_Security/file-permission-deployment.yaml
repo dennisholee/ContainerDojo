@@ -1,0 +1,50 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: securityenv
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: securityenv
+  name: securityenv-deployment
+  namespace: securityenv
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app:  busybox
+  template:
+    metadata:
+      labels:
+        app: busybox
+        deployment: securityenv-deployment
+    spec:
+      containers:
+      - image: busybox
+        name: box001
+        args: 
+        - "sleep"
+        - "10000"
+        volumeMounts:
+        - mountPath: /export
+          name: cache
+        securityContext:
+          runAsUser: 1000
+          runAsGroup: 1000
+      - image: busybox
+        name: box002
+        args: 
+        - "sleep"
+        - "10000"
+        volumeMounts:
+        - mountPath: /export
+          name: cache
+        securityContext:
+          runAsUser: 2000
+          runAsGroup: 2000
+      volumes:
+      - name: cache
+        emptyDir: {}
