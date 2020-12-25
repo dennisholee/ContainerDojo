@@ -1,0 +1,76 @@
+openapi: 3.0.0
+info:
+  title: Contacts API
+  description: Manage contact details.
+  version: '1.0'
+servers:
+  - url: '/api'
+paths:
+  /contacts:
+    get:
+      summary: 'Return a list of contacts'
+      tags:
+      - contacts
+      x-swagger-router-controller: contactController
+      operationId: getContact
+      responses:
+        '200':
+          description: 'JSON array of contacts'
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Contact'
+              example:
+                - id: 'abc123'
+                  firstname: 'Fred'
+                  lastname: 'Flinstone'
+    post:
+      summary: 'Create contact'
+      tags:
+      - contacts
+      x-swagger-router-controller: contactController
+      operationId: createContact
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Contact'
+            example:
+              firstname: 'Fred'
+              lastname: 'Flinstone'
+      responses:
+        '200':
+          description: 'Contact object'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
+              example:
+                message: OK
+        '409':
+          description: 'Record exists'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
+              example:
+                message: Duplicate record
+components:
+  schemas:
+    Contact:
+      type: object
+      properties:
+        id:
+          type: string
+        firstname:
+          type: string
+        lastname:
+          type: string
+    Response:
+      type: object
+      properties:
+        message:
+          type: string

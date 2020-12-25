@@ -1,0 +1,33 @@
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: localdisk
+provisioner: localdisk
+volumeBindingMode: WaitForFirstConsumer
+
+
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: api-persistance
+  labels:
+    storage: api
+spec:
+  storageClassName: localdisk 
+  local:
+    path: /tmp
+  accessModes:
+  - ReadWriteMany
+  capacity: 
+    storage: 300M
+#   mountOptions:
+#   - ro
+  nodeAffinity:
+    required:
+      nodeSelectorTerms:
+      - matchExpressions:
+        - key: kubernetes.io/hostname
+          operator: In
+          values:
+          - docker-desktop

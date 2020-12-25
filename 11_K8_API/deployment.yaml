@@ -1,0 +1,56 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: deployment
+spec:
+  selector:
+    matchLabels:
+      app: api
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: api
+    spec:
+      containers:
+      - image: localhost:5000/api
+        name: api
+        ports:
+        - containerPort: 80
+        volumeMounts:
+        - mountPath: /export/api
+          name: apiv
+      volumes:
+      - name: apiv
+        persistentVolumeClaim:
+          claimName: api-pvc
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: api-service     
+spec:
+  selector:
+    app: api
+  ports:
+  - name: http
+    port: 8081
+    protocol: TCP
+    targetPort: 80
+  type: NodePort
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: api-pvc
+spec:
+  selector:
+    matchLabels:
+      storage: api
+  accessModes:
+  - ReadWriteMany
+  resources:
+    requests:
+      storage: 1M
