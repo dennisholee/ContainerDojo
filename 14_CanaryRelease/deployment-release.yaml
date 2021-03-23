@@ -1,0 +1,100 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: canaryrelease
+  labels:
+    app: canaryrelease
+
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: canaryrelease-serviceaccount
+  namespace: canaryrelease
+  labels:
+    app: canaryrelease
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: canaryrelease-role
+  namespace: canaryrelease
+  labels:
+    app: canaryrelease
+rules:
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: canaryrelease-rolebinding
+roleRef:
+  kind: Role
+  name: canaryrelease-role
+  apiGroup: rbac.authorization.k8s.io
+subjects:
+- kind: ServiceAccount
+  name: canaryrelease-serviceaccount
+  namespace: canaryrelease
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: canaryrelease-deployment
+  namespace: canaryrelease
+spec:
+  replicas: 1
+  selector:
+    matchLabels: 
+      app: canaryrelease
+  template:
+    metadata:
+      name: canaryrelease
+      labels:
+        app: canaryrelease
+      namespace: canaryrelease
+    spec:
+      serviceAccountName: canaryrelease-serviceaccount
+      containers:
+      - image: localhost:5000/canaryapi
+        name: canaryrelease
+        ports:
+        - containerPort: 3000
+        env:
+        - name: RELEASE
+          value: canary
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: canaryrelease-service
+  namespace: canaryrelease
+spec:
+  selector:
+    app: canaryrelease
+  ports:
+  - port: 3000
+    targetPort: 3000
+
+---
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: release-ingress
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    nginx.ingress.kubernetes.io/canary: "true"
+    nginx.ingress.kubernetes.io/canary-weight: "50"
+  namespace: canaryrelease
+spec:
+  rules:
+  - host: forest.local
+    http:
+      paths:
+      - backend:
+          serviceName: canaryrelease-service
+          servicePort: 3000
+        path: /
