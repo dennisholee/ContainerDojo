@@ -1,0 +1,11 @@
+version: "3.9"
+services:
+  nginx:
+    image: nginx:stable-alpine
+    ports:
+      - "8080:80"
+      - "8443:443"
+    volumes:
+      - ../certs:/certs
+      - ./www:/usr/share/nginx/html
+      - ./conf/ssl.conf:/etc/nginx/conf.d/ssl.conf
